@@ -1,150 +1,124 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #define MAX_TERM 100
 
 typedef struct
 {
-	float coeff;
 	int exp;
-} polynomial;
-
-polynomial term[MAX_TERM];
-
-int avail = 0;
-
-int COMPARE(int a, int b)
+	float coef;
+}poly;
+int StartA,StartB,StartD,FinishA,FinishB,FinishD;
+poly term[MAX_TERM];
+int avail=0;
+int compare(int a,int b)
 {
-	if (a > b)
+	if(a<b)
 		return -1;
-
-	if (a == b)
+	else if(b>a)
+		return 1;
+	else if(a==b)
 		return 0;
-
-	if (a < b)
-		;
-	return 1;
 }
-
-void attach(float coeff, int exp)
+void attach(float coef,int exp)
 {
-	if (avail >= MAX_TERM)
+	if(avail>=MAX_TERM)
 	{
-		printf("OVERFLOW");
+		printf("Too many terms");
 		exit(0);
 	}
-	term[avail].coeff = coeff;
-	term[avail].exp = exp;
-	avail++;
-}
-
-void polyIn(int *startA, int *startB, int *finishA, int *finishB)
-{
-	int n, i;
-	float temp;
-	*startA = avail;
-	printf("How many terms in first polynomial?: ");
-	scanf("%d", &n);
-	printf("Enter %d terms: \n", n);
-	for (i = 0; i < n; i++)
+	else
 	{
-		printf("Term %d Coefficient: ", i + 1);
-		scanf("%f", &temp);
-		if (temp == 0)
-		{
-			printf("Power skipped!\n");
-			continue;
-		}
-		else
-			term[avail].coeff = temp;
-		printf("Term %d Exponent: ", i + 1);
-		scanf("%d", &term[avail].exp);
+		term[avail].coef=coef;
+		term[avail].exp=exp;
 		avail++;
 	}
 
-	*finishA = avail - 1;
-	*startB = avail;
-	printf("How many terms in second polynomial?: ");
-	scanf("%d", &n);
-	printf("Enter %d terms: \n", n);
-	for (i = 0; i < n; i++)
-	{
-		printf("Term %d Coefficient: ", i + 1);
-		scanf("%f", &temp);
-		if (temp == 0)
-		{
-			printf("Power skipped!\n");
-			continue;
-		}
-		else
-			term[avail].coeff = temp;
-		printf("Term %d Exponent: ", i + 1);
-		scanf("%d", &term[avail].exp);
-		avail++;
-	}
-	*finishB = avail - 1;
 }
-
-void padd(int startA, int startB, int finishA, int finishB, int *startC, int *finishC)
+void padd(int StartA,int FinishA,int StartB,int FinishB)
 {
-
-	float coefficient;
-	int exponent;
-	*startC = avail;
-	while (startA <= finishA && startB <= finishB)
+	int coefficient;
+	while(StartA<=FinishA && StartB<=FinishB)
 	{
-		switch (COMPARE(term[startA].exp, term[startB].exp))
+		switch(compare(term[StartA].exp,term[StartB].exp))
 		{
-
-		case -1:
-			coefficient = term[startA].coeff;
-			exponent = term[startA].exp;
-			startA++;
-			break;
-		case 0:
-			coefficient = term[startA].coeff + term[startB].coeff;
-			exponent = term[startA].exp;
-			startA++;
-			startB++;
-			break;
-		case 1:
-			coefficient = term[startB].coeff;
-			exponent = term[startB].exp;
-			startB++;
-			break;
+			case -1:
+				attach(term[StartB].coef,term[StartB].exp);
+				StartB++;
+				break;
+			case 1:
+				attach(term[StartA].coef,term[StartA].exp);
+				StartA++;
+				break;
+			case 0:
+				coefficient=term[StartA].coef + term[StartB].coef;
+				attach(coefficient,term[StartB].exp);
+				StartB++;
+				StartA++;
+				break;
 		}
 
-		attach(coefficient, exponent);
 	}
-
-	for (; startA <= finishA; startA++)
-		attach(term[startA].coeff, term[startA].exp);
-
-	for (; startB <= finishB; startB++)
-		attach(term[startB].coeff, term[startB].exp);
-
-	*finishC = avail - 1;
+	for(;StartA<=FinishA;StartA++)
+		attach(term[StartA].coef,term[StartA].exp);
+	for(;StartB<=FinishB;StartB++)
+		attach(term[StartB].coef,term[StartB].exp);
+	FinishD=avail-1;
 }
-
-void disp(int start, int finish)
+void printpoly(int StartA,int FinishA,int StartB,int FinishB)
 {
-	while (start <= finish)
+	printf("\nPoly 1\n\n");
+	for(StartA;StartA<=FinishA;StartA++)
 	{
-		printf("%.1fx^%d", term[start].coeff, term[start].exp);
-		start++;
-		if (start <= finish)
+		printf("%.1fx^%d",term[StartA].coef,term[StartA].exp);
+		if(StartA!=FinishA)
 			printf(" + ");
 	}
-	printf("\n");
+	printf("\n\n\nPoly 2\n\n");
+	for(StartB;StartB<=FinishB;StartB++)
+	{
+		printf("%.1fx^%d",term[StartB].coef,term[StartB].exp);
+		if(StartB!=FinishB)
+			printf(" + ");
+	}
 }
-
+void printpolysum(int StartD,int FinishD)
+{
+	printf("\nSum Poly\n\n");
+	for(StartD;StartD<=FinishD;StartD++)
+	{
+		printf("%.1fx^%d",term[StartD].coef,term[StartD].exp);
+		if(StartD!=FinishD)
+			printf(" + ");
+	}
+}
 int main()
 {
-	int startA, startB, startC, finishA, finishB, finishC;
 
-	polyIn(&startA, &startB, &finishA, &finishB);
-	padd(startA, startB, finishA, finishB, &startC, &finishC);
-	disp(startC, finishC);
-
+	int t1,t2,i,j;
+	StartA=avail;
+	printf("Enter the number of terms of poly 1:");
+	scanf("%d",&t1);
+	printf("Enter the number of terms of poly 2:");
+	scanf("%d",&t2);
+	printf("Enter coefficient and exponents of each term");
+	for(i=0;i<t1;i++)
+	{
+		scanf("%f %d",&term[i].coef,&term[i].exp);
+	}
+	FinishA=i-1;
+	StartB=i;
+	printf("Enter coefficient and exponents of each term");
+	for(j=0;j<t2;j++)
+	{
+		scanf("%f %d",&term[i+j].coef,&term[i+j].exp);
+	}
+	FinishB=i+j-1;
+	StartD=i+j;
+	avail=StartD;
+	padd(StartA,FinishA,StartB,FinishB);
+	printpoly(StartA,FinishA,StartB,FinishB);
+	printf("\n\n");
+	printpolysum(StartD,FinishD);
+	printf("\n\n");
 	return 0;
 }

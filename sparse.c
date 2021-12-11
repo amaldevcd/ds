@@ -83,7 +83,7 @@ void sparsetrans(struct sparse s1t[20],struct sparse s1[20],int value,int r1,int
 		}
 	}
 }
-void printsparsetrans(struct sparse s1[20],int value)
+void printsparsetrans(struct sparse s1t[20],int value)
 {
 	for(int i=0;i<=value;i++)
 	{
@@ -151,8 +151,24 @@ void sumsp()
 			}
 		}
 	}
-	sum[0].val = cnt - 1;
-	sumcount=cnt+1;
+	if(a==s1[0].val)
+	{
+		sum[cnt].row=s1[a].row;
+		sum[cnt].col=s1[a].col;
+		sum[cnt].val=s1[a].val;
+		a++;
+		cnt++;
+	}
+	if(b==s2[0].val)
+	{
+		sum[cnt].row=s2[b].row;
+		sum[cnt].col=s2[b].col;
+		sum[cnt].val=s2[b].val;
+		b++;
+		cnt++;
+	}
+	sum[0].val = cnt-1;
+	sumcount=cnt;
 	
 }
 
@@ -187,13 +203,14 @@ int main()
 	printf("Tupple form 2\n");
 	printsparse(s2,val2);
 	sparsetrans(s1t,s1,val1,r1,c1);
-	sparsetrans(s2t,s1,val2,r2,c2);
-	// printf("\n\n");
-	// printf("Transpose Tupple\n");
-	// printsparsetrans(s1t,val1);
-	// printf("\n\n");
-	// printf("Transpose Tupple\n");
-	// printsparsetrans(s2t,val2);
+	sparsetrans(s2t,s2,val2,r2,c2);
+	printf("\n\n");
+	printf("Transpose Tupple\n");
+	printsparsetrans(s1t,val1);
+	printf("\n\n");
+	printf("Transpose Tupple\n");
+	printsparsetrans(s2t,val2);
+	printf("\n\n");
 	sumsp();
 	printf("\n\n");
 	printf("Sum Tupple\n");
